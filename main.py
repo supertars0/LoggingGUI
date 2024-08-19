@@ -1,16 +1,13 @@
 import os
 import tkinter as tk
 from tkinter import filedialog
-
+import traceback
 import LoginWindow
 import SelectWindow
 import ShellWindow
 
 # 获取当前工作目录
 current_directory = os.path.dirname(os.path.abspath(__file__))
-
-print("当前工作目录:", current_directory)
-
 
 class WelcomeWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -86,5 +83,10 @@ class WelcomeWindow(tk.Tk):
 
 
 if __name__ == "__main__":
-    app = WelcomeWindow()
-    app.mainloop()
+    try:
+        app = WelcomeWindow()
+        app.mainloop()
+    except Exception as e:
+        print("程序出错:", e)
+        traceback.print_exc()
+        input("按任意键退出...")
