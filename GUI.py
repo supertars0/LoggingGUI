@@ -4,6 +4,13 @@ import subprocess
 import threading
 from tkinter import filedialog as tkFileDialog
 from tkinter import messagebox as tkMessageBox
+import os
+
+# 获取当前工作目录
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+print("当前工作目录:", current_directory)
+
 
 def run_shell_command(command):
     try:
@@ -23,7 +30,7 @@ class WelcomeWindow(tk.Tk):
         # 调用 Tk 类的构造函数
         tk.Tk.__init__(self, *args, **kwargs)
         # 设置窗口图标
-        self.wm_iconbitmap('E:/workspace/图形化部署/logo.ico')
+        self.wm_iconbitmap('{}\logo.ico'.format(current_directory))
         # 设置窗口标题
         self.directory = None
         self.title("虎魄部署程序")
@@ -32,7 +39,7 @@ class WelcomeWindow(tk.Tk):
         # 设置初始大小
         self.geometry("600x450")
         # 中心logo
-        self.img = tk.PhotoImage(file='E:/workspace/图形化部署/logo.ppm')
+        self.img = tk.PhotoImage(file='{}\logo.ppm'.format(current_directory))
         self.seago_logo = tk.Label(self, image=self.img)
         self.seago_logo.pack(pady=5)
         # 欢迎文本
@@ -90,7 +97,7 @@ class CreateSelectWindow(tk.Toplevel):
         tk.Toplevel.__init__(self, parent)
         # 设置窗口图标
         self.selected_items = None
-        self.wm_iconbitmap('./logo.ico')
+        self.wm_iconbitmap('{}\logo.ico'.format(current_directory))
         # 设置窗口标题
         self.title("选择想要安装的模块")
         # 禁止用户改变窗口大小
@@ -126,6 +133,7 @@ class CreateShellWindow(tk.Toplevel):
         self.process = None
         self.title("实时 Shell 输出")
         self.geometry("1200x600")
+        self.wm_iconbitmap('{}\logo.ico'.format(current_directory))
 
         # 创建 Text 小部件用于显示输出
         self.text_area = tk.Text(self, wrap=tk.WORD)
