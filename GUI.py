@@ -2,28 +2,15 @@ import queue
 import tkinter as tk
 import subprocess
 import threading
-from tkinter import filedialog as tkFileDialog
-from tkinter import messagebox as tkMessageBox
+from tkinter import filedialog
+from tkinter import messagebox
 import os
+import paramiko
 
 # 获取当前工作目录
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
 print("当前工作目录:", current_directory)
-
-
-def run_shell_command(command):
-    try:
-        # 执行 Shell 命令，并分别捕获标准输出和标准错误
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-
-        if process.returncode == 0:
-            return stdout.decode('utf-8')
-    except subprocess.CalledProcessError as e:
-        # 捕获命令执行中的错误并提示用户
-        tkMessageBox.showerror("命令执行错误", "命令执行失败: {e.output.decode('utf-8')}")
-
 
 class WelcomeWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -33,6 +20,7 @@ class WelcomeWindow(tk.Tk):
         self.wm_iconbitmap('{}\logo.ico'.format(current_directory))
         # 设置窗口标题
         self.directory = None
+        self.client = None
         self.title("虎魄部署程序")
         # 禁止用户改变窗口大小
         self.resizable(False, False)
@@ -45,10 +33,12 @@ class WelcomeWindow(tk.Tk):
         # 欢迎文本
         self.welcome_text = tk.Label(self, text="欢迎使用虎魄系统", font=("Arial", 24))
         self.welcome_text.pack(pady=5)
-        # 服务器ip提示3
-        self.server_ip = run_shell_command("hostname -I | awk '{print $1}'")
-        self.show_ip = tk.Label(self, text="当前服务器ip为:{}".format(self.server_ip), font=("Arial", 9))
+        # 服务器ip提示
+        self.show_ip = tk.Label(self, text="当前服务器:未连接", font=("Arial", 9))
         self.show_ip.place(relx=0.01, rely=0.01)
+
+        self.log_in = tk.Button(text='登录服务器', command=self.login_server)
+        self.log_in.place(relx=0.01, rely=0.08)
 
         # 安装目录文本
         self.directory_label = tk.Label(self, text="请选择安装目录:")
@@ -73,6 +63,9 @@ class WelcomeWindow(tk.Tk):
         self.deploy_start = tk.Button(self, text="开始部署", command=self.execute_shell)
         self.deploy_start.place(relx=0.83, rely=0.81)
 
+    def login_server(self):
+        CreateLoginWindow(self)
+
     def select_window(self):
         CreateSelectWindow(self)
 
@@ -82,7 +75,7 @@ class WelcomeWindow(tk.Tk):
         CreateShellWindow(self)
 
     def browse_directory(self):
-        self.directory = tkFileDialog.askdirectory()
+        self.directory = filedialog.askdirectory()
         if self.directory:
             self.directory_entry.delete(0, tk.END)
             self.directory_entry.insert(0, self.directory)
@@ -183,11 +176,11 @@ class CreateShellWindow(tk.Toplevel):
             pass
 
         if self.process.returncode == 0:  # 终止正在运行的进程
-            tkMessageBox.showinfo("info", u"部署成功")
+            messagebox.showinfo("info", u"部署成功")
             self.quit()
             self.parent.destroy()
         if self.process.returncode == 1:
-            tkMessageBox.showerror("error", u"部署失败！")
+            messagebox.showerror("error", u"部署失败！")
             self.quit()
             self.parent.destroy()
         # 继续检查队列
@@ -198,10 +191,67 @@ class CreateShellWindow(tk.Toplevel):
 
         if self.process:
             self.process.terminate()  # 终止正在运行的进程
-            tkMessageBox.showerror("error", u"部署失败！")
+            messagebox.showerror("error", u"部署失败！")
             self.process = None
         self.quit()
         self.parent.destroy()
+
+
+class CreateLoginWindow(tk.Toplevel):
+    def __init__(self, parent):
+        tk.Toplevel.__init__(self, parent)
+        self.parent = parent
+        self.log_in = self.parent.log_in
+        self.title("登录linux服务器")
+        self.geometry("300x250")
+        self.wm_iconbitmap('{}\logo.ico'.format(current_directory))
+
+        self.server_ip_text = tk.Label(self, text='服务器地址')
+        self.server_ip_text.pack(pady=15)
+        self.server_ip = tk.Entry(self, width=30)
+        self.server_ip.pack(pady=5)
+        self.server_username_text = tk.Label(self, text='用户名:')
+        self.server_username_text.pack(pady=5)
+        self.server_username = tk.Entry(self, width=30)
+        self.server_username.pack(pady=5)
+
+        self.server_password_test = tk.Label(self, text='密码:')
+        self.server_password_test.pack(pady=5)
+        self.server_password = tk.Entry(self, width=30)
+        self.server_password.pack(pady=5)
+
+        self.login_button = tk.Button(self, text='登录', command=self.login)
+        self.login_button.pack(pady=5)
+
+
+    def login(self):
+
+        hostname = self.server_ip.get()
+        username = self.server_username.get()
+        password = self.server_password.get()
+        port = 22
+        self.parent.client = paramiko.SSHClient()
+        self.parent.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # 自动添加主机密钥
+        if hostname and username and password:
+            # 连接到服务器
+            try:
+                self.parent.client.connect(hostname, port, username, password)
+            except paramiko.ssh_exception:
+                messagebox.showerror("error","登录失败")
+                self.log_in.config(state="normal")
+            else:
+                stdin, stdout, stderr = self.parent.client.exec_command("hostname -I | awk '{print $1}'")
+                output = stdout.read().decode()
+                self.parent.show_ip.config(text="当前服务器:{}".format(output), font=("Arial", 9))
+                self.log_in.config(state="disabled", text="已连接")
+            finally:
+                self.destroy()
+        else:
+            messagebox.showerror("error", "请输入完整连接信息！")
+
+
+
+
 
 
 if __name__ == "__main__":
