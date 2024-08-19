@@ -1,9 +1,9 @@
+import os
 import queue
-import tkinter as tk
 import subprocess
 import threading
+import tkinter as tk
 from tkinter import messagebox
-import os
 
 # 获取当前工作目录
 current_directory = os.path.dirname(os.path.abspath(__file__))

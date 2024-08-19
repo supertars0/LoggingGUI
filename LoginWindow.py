@@ -1,6 +1,7 @@
+import os
 import tkinter as tk
 from tkinter import messagebox
-import os
+
 import paramiko
 
 current_directory = os.path.dirname(os.path.abspath(__file__))

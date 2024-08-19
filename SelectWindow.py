@@ -1,5 +1,5 @@
-import tkinter as tk
 import os
+import tkinter as tk
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 

@@ -1,8 +1,10 @@
-import tkinter as tk
-from tkinter import ttk
-import paramiko
-from threading import Thread
 import os
+import tkinter as tk
+from threading import Thread
+from tkinter import ttk
+
+import paramiko
+
 
 # 定义传输文件的函数
 def transfer_file():
