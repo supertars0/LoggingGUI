@@ -72,6 +72,9 @@ class WelcomeWindow(tk.Tk):
     def execute_shell(self):
         self.withdraw()
         self.deploy_start.config(state=tk.DISABLED)
+
+        self.deploy_dir = self.directory_entry.get()
+        self.deploy_app = self.app_list.cget("text")
         ShellWindow.CreateShellWindow(self)
 
     def browse_directory(self):
@@ -84,7 +87,7 @@ class WelcomeWindow(tk.Tk):
     def update_app_text(self, data):
         app_list = ",".join(data)
         self.app_list.config(text=app_list)
-        self.deploy_app = self.app_list.cget("text")
+
 
 
 if __name__ == "__main__":

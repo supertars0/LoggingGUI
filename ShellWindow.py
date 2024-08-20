@@ -3,7 +3,7 @@ import queue
 import subprocess
 import threading
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 
 import paramiko
 
@@ -20,13 +20,16 @@ class CreateShellWindow(tk.Toplevel):
         self.title("实时 Shell 输出")
         self.geometry("1200x600")
         self.wm_iconbitmap('{}\logo.ico'.format(current_directory))
-
         # 创建 Text 小部件用于显示输出
         self.text_area = tk.Text(self, wrap=tk.WORD)
         self.text_area.pack(expand=True, fill='both')
-        # 创建队列来处理线程与Tkinter主线程的通信
+
+        self.progress_bar= ttk.Progressbar(self, orient="horizontal", length=1200, mode="determinate")
+        self.progress_bar.pack(pady=20)
         self.stop_button = tk.Button(self, text="终止进程", command=self.stop_shell_command)
         self.stop_button.pack(pady=10)
+
+        self.file_transport()
 
         self.run_shell_command()
 
@@ -38,7 +41,7 @@ class CreateShellWindow(tk.Toplevel):
 
     def execute_command(self):
         # 执行 Shell 命令
-        self.parent.deploy_dir = self.parent.directory_entry.get()
+
         command = "/opt/args_test.sh {} {} {}".format(self.parent.deploy_dir,
                                                  self.parent.deploy_app, self.parent.deploy_ip)
         try:
@@ -59,3 +62,28 @@ class CreateShellWindow(tk.Toplevel):
             self.ssh_client.close()
         self.quit()
         self.parent.destroy()
+
+    def file_transport(self):
+        local_file = current_directory + "/deploy.zip"
+        remote_file = self.parent.deploy_dir + "/deploy.zip"
+        sftp = self.parent.client.open_sftp()
+        filesize = os.path.getsize(local_file)
+
+        self.progress_bar['maximum'] = filesize
+
+        def progress_callback(transferred, total):
+            self.progress_bar['value'] = transferred
+            self.update_idletasks()
+
+        self.text_area.insert(tk.END, "文件传输中...\n")
+        sftp.put(local_file, remote_file, callback=progress_callback)
+        sftp.close()
+
+        self.text_area.insert(tk.END, "文件传输完成，开始执行脚本...\n")
+        self.text_area.see(tk.END)
+        self.text_area.update_idletasks()
+
+
+
+
+
