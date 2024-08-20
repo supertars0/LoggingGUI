@@ -8,9 +8,14 @@ import ShellWindow
 
 # 获取当前工作目录
 current_directory = os.path.dirname(os.path.abspath(__file__))
+script_name = "deploy.zip"
+module_list = ["seago-bom", "seago-sso", "seago-platform"]
+
 
 class WelcomeWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
+        self.script_name = script_name
+        self.module_list = module_list
         # 调用 Tk 类的构造函数
         tk.Tk.__init__(self, *args, **kwargs)
         # 设置窗口图标
@@ -63,6 +68,7 @@ class WelcomeWindow(tk.Tk):
         self.deploy_dir = None
         self.deploy_ip = None
         self.deploy_app = None
+
     def login_server(self):
         LoginWindow.CreateLoginWindow(self)
 
@@ -83,11 +89,9 @@ class WelcomeWindow(tk.Tk):
             self.directory_entry.delete(0, tk.END)
             self.directory_entry.insert(0, self.directory)
 
-
     def update_app_text(self, data):
         app_list = ",".join(data)
         self.app_list.config(text=app_list)
-
 
 
 if __name__ == "__main__":

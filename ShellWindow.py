@@ -22,7 +22,7 @@ class CreateShellWindow(tk.Toplevel):
         self.text_area = tk.Text(self, wrap=tk.WORD)
         self.text_area.pack(expand=True, fill='both')
 
-        self.progress_bar= ttk.Progressbar(self, orient="horizontal", length=1200, mode="determinate")
+        self.progress_bar = ttk.Progressbar(self, orient="horizontal", length=1200, mode="determinate")
         self.progress_bar.pack(pady=20)
         self.stop_button = tk.Button(self, text="终止进程", command=self.stop_shell_command)
         self.stop_button.pack(pady=10)
@@ -41,7 +41,7 @@ class CreateShellWindow(tk.Toplevel):
         # 执行 Shell 命令
 
         command = "/opt/args_test.sh {} {} {}".format(self.parent.deploy_dir,
-                                                 self.parent.deploy_app, self.parent.deploy_ip)
+                                                      self.parent.deploy_app, self.parent.deploy_ip)
         try:
             stdin, stdout, stderr = self.ssh_client.exec_command(command)
             print(stdout)
@@ -54,7 +54,6 @@ class CreateShellWindow(tk.Toplevel):
         finally:
             self.ssh_client.close()
 
-
     def stop_shell_command(self):
         if self.ssh_client:
             self.ssh_client.close()
@@ -62,8 +61,8 @@ class CreateShellWindow(tk.Toplevel):
         self.parent.destroy()
 
     def file_transport(self):
-        local_file = current_directory + "/deploy.zip"
-        remote_file = self.parent.deploy_dir + "/deploy.zip"
+        local_file = current_directory + "/" + self.parent.script_name
+        remote_file = self.parent.deploy_dir + "/" + self.parent.script_name
         sftp = self.parent.client.open_sftp()
         filesize = os.path.getsize(local_file)
 
@@ -80,8 +79,3 @@ class CreateShellWindow(tk.Toplevel):
         self.text_area.insert(tk.END, "文件传输完成，开始执行脚本...\n")
         self.text_area.see(tk.END)
         self.text_area.update_idletasks()
-
-
-
-
-

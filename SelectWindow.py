@@ -19,7 +19,7 @@ class CreateSelectWindow(tk.Toplevel):
         self.parent = parent
 
         self.check_vars = []
-        options = ["seago-bom", "seago-sso", "seago-platform"]
+        options = self.parent.module_list
         for option in options:
             var = tk.IntVar()
             chk = tk.Checkbutton(self, text=option, variable=var, command=self.update_selection)

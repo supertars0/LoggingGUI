@@ -55,6 +55,7 @@ def transfer_file():
         output_text.insert(tk.END, f"连接或执行失败: {e}\n")
         output_text.see(tk.END)
 
+
 # 创建主窗口
 root = tk.Tk()
 root.title("文件传输与脚本执行")
