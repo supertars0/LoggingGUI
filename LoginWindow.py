@@ -53,7 +53,17 @@ class CreateLoginWindow(tk.Toplevel):
                 output = stdout.read().decode()
                 self.parent.show_ip.config(text="当前服务器:{}".format(output), font=("Arial", 9))
                 self.log_in.config(state="disabled", text="已连接")
+                print(f"成功连接到服务器{output}")
+                self.parent.disconnect = tk.Button(self.parent, text="断开连接", command=self.logout)
+                self.parent.disconnect.place(relx=0.2, rely=0.08)
             finally:
                 self.destroy()
         else:
             messagebox.showerror("error", "请输入完整连接信息！")
+
+    def logout(self):
+        self.log_in.config(state="normal", text="登录服务器")
+        self.parent.show_ip.config(text="当前服务器:未连接", font=("Arial", 9))
+        self.parent.client.close()
+        self.parent.disconnect.destroy()
+        print("已断开服务器连接")
