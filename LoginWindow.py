@@ -50,10 +50,10 @@ class CreateLoginWindow(tk.Toplevel):
                 self.log_in.config(state="normal")
             else:
                 stdin, stdout, stderr = self.parent.client.exec_command("hostname -I | awk '{print $1}'")
-                output = stdout.read().decode()
-                self.parent.show_ip.config(text="当前服务器:{}".format(output), font=("Arial", 9))
+                self.parent.deploy_ip = stdout.read().decode()
+                self.parent.show_ip.config(text="当前服务器:{}".format(self.parent.deploy_ip), font=("Arial", 9))
                 self.log_in.config(state="disabled", text="已连接")
-                print(f"成功连接到服务器{output}")
+                print(f"成功连接到服务器{self.parent.deploy_ip}")
                 self.parent.disconnect = tk.Button(self.parent, text="断开连接", command=self.logout)
                 self.parent.disconnect.place(relx=0.2, rely=0.08)
             finally:

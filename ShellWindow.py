@@ -38,8 +38,9 @@ class CreateShellWindow(tk.Toplevel):
 
     def execute_command(self):
         # 执行 Shell 命令
-        command = "/opt/args_test.sh {} {}".format(self.parent.directory_entry.get(),
-                                                 self.parent.app_list.cget("text"))
+        self.parent.deploy_dir = self.parent.directory_entry.get()
+        command = "/opt/args_test.sh {} {} {}".format(self.parent.deploy_dir,
+                                                 self.parent.deploy_app, self.parent.deploy_ip)
         try:
             stdin, stdout, stderr = self.ssh_client.exec_command(command)
             print(stdout)

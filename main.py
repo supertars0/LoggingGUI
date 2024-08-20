@@ -60,6 +60,9 @@ class WelcomeWindow(tk.Tk):
         self.deploy_start = tk.Button(self, text="开始部署", command=self.execute_shell)
         self.deploy_start.place(relx=0.83, rely=0.81)
 
+        self.deploy_dir = None
+        self.deploy_ip = None
+        self.deploy_app = None
     def login_server(self):
         LoginWindow.CreateLoginWindow(self)
 
@@ -77,9 +80,11 @@ class WelcomeWindow(tk.Tk):
             self.directory_entry.delete(0, tk.END)
             self.directory_entry.insert(0, self.directory)
 
+
     def update_app_text(self, data):
         app_list = ",".join(data)
         self.app_list.config(text=app_list)
+        self.deploy_app = self.app_list.cget("text")
 
 
 if __name__ == "__main__":
