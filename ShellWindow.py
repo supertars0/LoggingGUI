@@ -1,6 +1,4 @@
 import os
-import queue
-import subprocess
 import threading
 import tkinter as tk
 from tkinter import messagebox, ttk
