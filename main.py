@@ -6,7 +6,6 @@ import SelectWindow
 import ShellWindow
 from tkinter import messagebox
 
-
 # 获取当前工作目录
 current_directory = os.path.dirname(os.path.abspath(__file__))
 package_name = "deploy.tar.gz"
@@ -87,12 +86,13 @@ class WelcomeWindow(tk.Tk):
             messagebox.showerror("error", "请输入完整部署信息！")
 
     def browse_directory(self):
-        stdin, stdout, stderr = self.client.exec_command("df --output=target | tail -n +2 | xargs -I {} df -h {} | sort -k4 -h | tail -n 1 | awk '{print $NF}'")
+        stdin, stdout, stderr = self.client.exec_command(
+            "df --output=target | tail -n +2 | xargs -I {} df -h {} | sort -k4 -h | tail -n 1 | awk '{print $NF}'")
         self.directory = stdout.read().decode("utf-8")
-        if self.directory=="/\n":
+        if self.directory == "/\n":
             self.directory_entry.delete(0, tk.END)
             self.directory_entry.insert(0, "/opt")
-        elif self.directory=="/home\n":
+        elif self.directory == "/home\n":
             self.directory_entry.delete(0, tk.END)
             self.directory_entry.insert(0, "/home")
         else:

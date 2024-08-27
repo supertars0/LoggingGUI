@@ -27,7 +27,6 @@ class CreateShellWindow(tk.Toplevel):
 
         threading.Thread(target=self.file_transport).start()
 
-
     def run_shell_command(self):
 
         # 使用线程来运行 Shell 命令，以免阻塞主线程
@@ -38,7 +37,7 @@ class CreateShellWindow(tk.Toplevel):
         # 执行 Shell 命令
 
         command = "sh /opt/args_test.sh {} {} {}".format(self.parent.deploy_dir,
-                                                      self.parent.deploy_app, self.parent.deploy_ip)
+                                                         self.parent.deploy_app, self.parent.deploy_ip)
         try:
             stdin, stdout, stderr = self.ssh_client.exec_command(command)
             for line in iter(stdout.readline, ""):
@@ -86,5 +85,3 @@ class CreateShellWindow(tk.Toplevel):
 
         self.text_area.see(tk.END)
         self.text_area.update_idletasks()
-
-
