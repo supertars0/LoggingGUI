@@ -1,10 +1,11 @@
 import os
 import tkinter as tk
-from tkinter import filedialog
 import traceback
 import LoginWindow
 import SelectWindow
 import ShellWindow
+from tkinter import messagebox
+
 
 # 获取当前工作目录
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -76,12 +77,14 @@ class WelcomeWindow(tk.Tk):
         SelectWindow.CreateSelectWindow(self)
 
     def execute_shell(self):
-        self.withdraw()
-        self.deploy_start.config(state=tk.DISABLED)
-
         self.deploy_dir = self.directory_entry.get()
         self.deploy_app = self.app_list.cget("text")
-        ShellWindow.CreateShellWindow(self)
+        if self.deploy_dir and self.deploy_ip and self.deploy_app:
+            self.withdraw()
+            self.deploy_start.config(state=tk.DISABLED)
+            ShellWindow.CreateShellWindow(self)
+        else:
+            messagebox.showerror("error", "请输入完整部署信息！")
 
     def browse_directory(self):
         stdin, stdout, stderr = self.client.exec_command("df --output=target | tail -n +2 | xargs -I {} df -h {} | sort -k4 -h | tail -n 1 | awk '{print $NF}'")

@@ -3,8 +3,6 @@ import threading
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-import paramiko
-
 # 获取当前工作目录
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -24,18 +22,17 @@ class CreateShellWindow(tk.Toplevel):
 
         self.progress_bar = ttk.Progressbar(self, orient="horizontal", length=1200, mode="determinate")
         self.progress_bar.pack(pady=20)
-        self.stop_button = tk.Button(self, text="终止进程", command=self.stop_shell_command)
+        self.stop_button = tk.Button(self, text="结束部署", command=self.stop_shell_command)
         self.stop_button.pack(pady=10)
 
-        self.file_transport()
+        threading.Thread(target=self.file_transport).start()
 
-        self.run_shell_command()
 
     def run_shell_command(self):
 
         # 使用线程来运行 Shell 命令，以免阻塞主线程
-        thread = threading.Thread(target=self.execute_command)
-        thread.start()
+        shell_thread = threading.Thread(target=self.execute_command)
+        shell_thread.start()
 
     def execute_command(self):
         # 执行 Shell 命令
@@ -71,10 +68,23 @@ class CreateShellWindow(tk.Toplevel):
             self.progress_bar['value'] = transferred
             self.update_idletasks()
 
+        # 在主线程中更新 GUI 的 Text 小部件
         self.text_area.insert(tk.END, "文件传输中...\n")
-        sftp.put(local_file, remote_file, callback=progress_callback)
-        sftp.close()
-
-        self.text_area.insert(tk.END, "文件传输完成，开始执行脚本...\n")
         self.text_area.see(tk.END)
         self.text_area.update_idletasks()
+
+        # 在单独的线程中进行文件传输
+        try:
+            sftp.put(local_file, remote_file, callback=progress_callback)
+            # 文件传输完成后在主线程中更新 GUI
+            self.text_area.insert(tk.END, "文件传输完成，开始执行脚本...\n")
+            self.run_shell_command()
+        except Exception as e:
+            messagebox.showerror("传输失败", f"文件传输失败：{e}\n")
+        finally:
+            sftp.close()
+
+        self.text_area.see(tk.END)
+        self.text_area.update_idletasks()
+
+
