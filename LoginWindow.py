@@ -8,6 +8,7 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 
 
 class CreateLoginWindow(tk.Toplevel):
+
     def __init__(self, parent):
         tk.Toplevel.__init__(self, parent)
         self.parent = parent
