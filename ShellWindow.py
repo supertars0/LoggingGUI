@@ -40,16 +40,15 @@ class CreateShellWindow(tk.Toplevel):
     def execute_command(self):
         # 执行 Shell 命令
 
-        command = "/opt/args_test.sh {} {} {}".format(self.parent.deploy_dir,
+        command = "sh /opt/args_test.sh {} {} {}".format(self.parent.deploy_dir,
                                                       self.parent.deploy_app, self.parent.deploy_ip)
         try:
             stdin, stdout, stderr = self.ssh_client.exec_command(command)
-            print(stdout)
             for line in iter(stdout.readline, ""):
                 self.text_area.insert(tk.END, line)
                 self.text_area.see(tk.END)
                 self.text_area.update_idletasks()
-        except paramiko.ssh_exception as e:
+        except Exception as e:
             messagebox.showerror(f"执行失败：{e}\n")
         finally:
             self.ssh_client.close()
@@ -61,8 +60,8 @@ class CreateShellWindow(tk.Toplevel):
         self.parent.destroy()
 
     def file_transport(self):
-        local_file = current_directory + "/" + self.parent.script_name
-        remote_file = self.parent.deploy_dir + "/" + self.parent.script_name
+        local_file = current_directory + "/" + self.parent.package_name
+        remote_file = self.parent.deploy_dir + "/" + self.parent.package_name
         sftp = self.parent.client.open_sftp()
         filesize = os.path.getsize(local_file)
 

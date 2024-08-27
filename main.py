@@ -8,13 +8,13 @@ import ShellWindow
 
 # 获取当前工作目录
 current_directory = os.path.dirname(os.path.abspath(__file__))
-script_name = "deploy.zip"
+package_name = "deploy.tar.gz"
 module_list = ["seago-bom", "seago-sso", "seago-platform"]
 
 
 class WelcomeWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
-        self.script_name = script_name
+        self.package_name = package_name
         self.module_list = module_list
         # 调用 Tk 类的构造函数
         tk.Tk.__init__(self, *args, **kwargs)
@@ -49,7 +49,7 @@ class WelcomeWindow(tk.Tk):
         self.directory_entry = tk.Entry(self, width=70)
         self.directory_entry.place(relx=0.1, rely=0.35)
         # 目录选择按钮
-        self.browse_button = tk.Button(self, text="浏览目录", command=self.browse_directory)
+        self.browse_button = tk.Button(self, text="刷新", command=self.browse_directory)
         self.browse_button.place(relx=0.1, rely=0.41)
         # 模块选择框
         self.app_text = tk.Label(self, text="安装的模块")
@@ -84,8 +84,15 @@ class WelcomeWindow(tk.Tk):
         ShellWindow.CreateShellWindow(self)
 
     def browse_directory(self):
-        self.directory = filedialog.askdirectory()
-        if self.directory:
+        stdin, stdout, stderr = self.client.exec_command("df --output=target | tail -n +2 | xargs -I {} df -h {} | sort -k4 -h | tail -n 1 | awk '{print $NF}'")
+        self.directory = stdout.read().decode("utf-8")
+        if self.directory=="/\n":
+            self.directory_entry.delete(0, tk.END)
+            self.directory_entry.insert(0, "/opt")
+        elif self.directory=="/home\n":
+            self.directory_entry.delete(0, tk.END)
+            self.directory_entry.insert(0, "/home")
+        else:
             self.directory_entry.delete(0, tk.END)
             self.directory_entry.insert(0, self.directory)
 
